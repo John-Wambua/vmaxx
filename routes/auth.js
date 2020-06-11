@@ -1,10 +1,11 @@
-const jwt=require('jsonwebtoken');
+
 const express=require('express');
 const _ =require('lodash');
 const bcrypt=require('bcrypt');
 const router=express.Router();
 const Joi=require('joi');
-require('dotenv').config()
+const auth=require('../middleware/auth')
+
 const {User}=require('../models/user');
 
 router.route('/')
@@ -29,9 +30,10 @@ router.route('/')
 
                 if (err) return res.send(400).send('Invalid email or password');
                 if (result) {
-                    jwt.sign({_id: foundUser._id},process.env.SECRET, (err, token) => {
+
+                    const token=foundUser.generateAuthToken()
                         res.send(token);
-                    });
+
                 }
             });
         });

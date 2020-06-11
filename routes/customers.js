@@ -1,6 +1,7 @@
 const express=require('express');
 const router=express.Router();
 const {Customer,validate}=require('../models/customer')
+const auth=require('../middleware/auth')
 
 router.route('/')
     .get((req,res)=>{
@@ -10,7 +11,7 @@ router.route('/')
             res.send(foundGenres)
         })
     })
-    .post((req,res)=>{
+    .post(auth,(req,res)=>{
         const isGold=req.body.isGold;
         const inputName=req.body.name;
         const inputPhone=req.body.phone;
@@ -36,7 +37,7 @@ router.route('/:id')
         })
 
     })
-    .put((req,res)=>{
+    .put(auth,(req,res)=>{
         const customerId=req.params.id;
         const isGold=req.body.isGold;
         const inputName=req.body.name;
@@ -48,7 +49,7 @@ router.route('/:id')
             res.send(foundCustomer)
         })
     })
-    .delete((req,res)=>{
+    .delete(auth,(req,res)=>{
         const customerId=req.params.id;
         Customer.findByIdAndRemove(customerId, {useFindAndModify:false},(err, foundCustomer)=>{
             if (!foundCustomer) return res.status(404)

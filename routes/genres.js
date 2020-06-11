@@ -1,17 +1,20 @@
 const express=require('express');
 const router=express.Router();
 const {Genre,validate}=require('../models/genre')
+const auth=require('../middleware/auth')
+const admin=require('../middleware/admin')
 
 
-router.route('/')
-    .get((req,res)=>{
+router.route('/',)
+    .get((req,res,next)=>{
 
         Genre.find({},(err,foundGenres)=>{
-            if(!foundGenres) return res.status(404),res.send(err)
+            if (err) return next(err)
+            if(!foundGenres) return res.status(404),res.send("No records found")
             res.send(foundGenres)
         })
     })
-    .post((req,res)=>{
+    .post(auth,(req,res)=>{
         const inputGenre=req.body.genre;
 
         const { error} = validate(req.body)
@@ -36,7 +39,7 @@ router.route('/:id')
         })
 
     })
-    .put((req,res)=>{
+    .put(auth,(req,res)=>{
         const genreId=req.params.id;
         const inputGenre=req.body.genre;
 
@@ -49,7 +52,7 @@ router.route('/:id')
         })
 
     })
-    .delete((req,res)=>{
+    .delete([auth,admin],(req,res)=>{
         const genreId=req.params.id;
        Genre.findByIdAndRemove(genreId,null,(err,foundGenre)=>{
            if (!foundGenre) return res.status(404)

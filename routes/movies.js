@@ -2,6 +2,7 @@ const express=require('express');
 const router=express.Router();
 const {Movie,validate}=require('../models/movie');
 const {Genre}=require('../models/genre')
+const auth=require('../middleware/auth')
 
 router.route('/')
     .get((req,res)=>{
@@ -10,7 +11,7 @@ router.route('/')
             res.send(foundMovies);
         })
     })
-    .post((req,res)=>{
+    .post(auth,(req,res)=>{
         const inputTitle=req.body.title;
         const stockNumber=req.body.numberInStock;
         const inputGenreId=req.body.genreId;
@@ -40,7 +41,7 @@ router.route('/')
 
 
     })
-    .delete((req,res)=>{
+    .delete(auth,(req,res)=>{
         Movie.delete({},err=>{
             if (err) return res.send(err)
             res.send('Deleted!')
@@ -55,7 +56,7 @@ router.route('/:id')
         })
 
     })
-    .put((req,res)=>{
+    .put(auth,(req,res)=>{
         const movieId=req.params.id;
         const inputTitle=req.body.title;
         const inputGenre=req.body.genre;
@@ -65,13 +66,13 @@ router.route('/:id')
         const { error} = validate(req.body)
         if(error) return res.status(400)
 
-        Movie.findByIdAndUpdate(movieId,{},{new:true},(err,foundMovie)=>{
+        Movie.findByIdAndUpdate(movieId,{title:inputTitle,genre:inputGenre,numberInStock:stockNumber,dailyRentalRate:rentalRate},{new:true},(err,foundMovie)=>{
             if (err) return res.send(err)
             res.send(foundMovie)
         })
 
     })
-    .delete((req,res)=>{
+    .delete(auth,(req,res)=>{
         const movieId=req.params.id;
         Movie.findByIdAndRemove(movieId,null,(err,foundMovie)=>{
             if (!foundMovie) return res.status(404)

@@ -1,5 +1,7 @@
 const mongoose=require('mongoose');
 const Joi=require('joi');
+const jwt=require('jsonwebtoken');
+require('dotenv').config()
 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
@@ -23,8 +25,14 @@ const userSchema=new mongoose.Schema({
         type:String,
         minlength:6,
         required:true,
-    }
+    },
+    isAdmin:Boolean
 });
+
+userSchema.methods.generateAuthToken=function(){
+    const token=jwt.sign({_id: this._id,isAdmin:this.isAdmin},process.env.SECRET);
+    return token;
+}
 
 const User=mongoose.model('User',userSchema);
 

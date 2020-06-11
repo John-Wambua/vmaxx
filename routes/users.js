@@ -6,14 +6,17 @@ const bcrypt=require('bcrypt');
 const router=express.Router();
 const {User,validate}=require('../models/user');
 const saltRounds=10;
+const auth=require('../middleware/auth')
 
-router.route('/')
-    .get((req,res)=>{
-        User.find({},(err,users)=>{
+router.route('/me')
+    .get(auth,(req,res)=>{
+        const userId=req.user._id
+        User.findById(userId, {password:0},(err,users)=>{
             if (err) return res.send(err)
             res.send(users);
         })
-    })
+    });
+router.route('/')
     .post((req,res)=>{
         const inputName=req.body.name;
         const inputEmail=req.body.email;
@@ -35,10 +38,9 @@ router.route('/')
                 user.save(err=>{
                     if (err) return res.send(err)
 
-                    jwt.sign({_id: user._id},process.env.SECRET, (err, token) => {
+                    const token=user.generateAuthToken();
                         // res.send(token);
                         res.header('x-auth-token',token).send(_.pick(user, ['id','name', 'email']));
-                    });
 
 
                 })
@@ -46,6 +48,7 @@ router.route('/')
 
         })
     });
+router.route
 
 
 module.exports=router;
