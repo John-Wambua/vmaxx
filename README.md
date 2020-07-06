@@ -1,2 +1,2 @@
 # moviez
-Movie management API 
+Movie management API including customers, movies, genres and user authentication
